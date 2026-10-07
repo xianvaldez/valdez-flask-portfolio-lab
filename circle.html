@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Circle Area - My Portfolio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Area of a Circle</h1>
+    <div class="form-card">
+        <form method="POST">
+            <label for="radius">Radius:</label>
+            <input type="number" step="any" min="0" name="radius" id="radius" required>
+            <button class="btn" type="submit">Calculate Area</button>
+        </form>
+
+        {% if result is not none %}
+        <div class="result">
+            <strong>Area:</strong> {{ result }} square units
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Linked List - My Portfolio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Linked List</h1>
+    <p>Use the controls below to add nodes to the linked list.</p>
+
+    <div class="form-card">
+        <label for="data">Node Value:</label>
+        <input type="text" id="data" placeholder="Enter a value">
+
+        <label for="position">Insert Position:</label>
+        <select id="position">
+            <option value="beginning">Beginning</option>
+            <option value="end">End</option>
+        </select>
+
+        <button class="btn" onclick="insertNode()">Insert Node</button>
+        <button class="btn" onclick="clearList()">Clear List</button>
+
+        <div id="message" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="card" style="margin-top:25px;">
+        <h2>Current Linked List</h2>
+        <div id="list" class="list-display"></div>
+    </div>
+</div>
+
+<script>
+let values = {{ values | tojson }};
+
+function displayList() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    if (values.length === 0) {
+        list.innerHTML = "<p>The linked list is empty.</p>";
+        return;
+    }
+
+    values.forEach((value, index) => {
+        const node = document.createElement("div");
+        node.className = "node";
+        node.textContent = value;
+        list.appendChild(node);
+
+        if (index < values.length - 1) {
+            const arrow = document.createElement("div");
+            arrow.className = "arrow";
+            arrow.textContent = "→";
+            list.appendChild(arrow);
+        }
+    });
+}
+
+function insertNode() {
+    const data = document.getElementById("data").value;
+    const position = document.getElementById("position").value;
+
+    fetch("{{ url_for('linked_list_insert') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            data: data,
+            position: position
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            values = result.values;
+            document.getElementById("data").value = "";
+            showMessage("Node inserted successfully.");
+            displayList();
+        } else {
+            showMessage(result.message);
+        }
+    });
+}
+
+function clearList() {
+    fetch("{{ url_for('linked_list_clear') }}", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(result => {
+        values = result.values;
+        showMessage("Linked list cleared.");
+        displayList();
+    });
+}
+
+function showMessage(message) {
+    const box = document.getElementById("message");
+    box.textContent = message;
+    box.style.display = "block";
+}
+
+displayList();
+</script>
+{% endblock %}

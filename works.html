@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Works - My Portfolio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Programming Works</h1>
+    <p>Some of my programming exercises implemented using Flask.</p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h2>Convert to Uppercase</h2>
+            <form method="POST">
+                <label>Enter a string:</label>
+                <input type="text" name="inputString" required>
+                <button class="btn" type="submit">Convert</button>
+            </form>
+
+            {% if result is not none %}
+            <div class="result">
+                <strong>Result:</strong> {{ result }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Area of Circle</h2>
+            <p>Calculate the area using the radius.</p>
+            <a class="btn" href="{{ url_for('acircle') }}">Open Calculator</a>
+        </div>
+
+        <div class="card">
+            <h2>Area of Triangle</h2>
+            <p>Calculate the area using base and height.</p>
+            <a class="btn" href="{{ url_for('atriangle') }}">Open Calculator</a>
+        </div>
+
+        <div class="card">
+            <h2>Linked List</h2>
+            <p>Insert values at the beginning or end of a linked list.</p>
+            <a class="btn" href="{{ url_for('linked_list_page') }}">Open Linked List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
