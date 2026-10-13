@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
 
@@ -40,6 +40,41 @@ class LinkedList:
 
 
 linked_list = LinkedList()
+
+
+class Stack:
+    def __init__(self):
+        self.top = None
+
+    def push(self, data):
+        new_node = Node(data)
+        new_node.next = self.top
+        self.top = new_node
+
+    def pop(self):
+        if self.top is None:
+            return None
+
+        popped_node = self.top
+        self.top = self.top.next
+        popped_node.next = None
+        return popped_node.data
+
+    def peek(self):
+        if self.top:
+            return self.top.data
+        return None
+
+    def to_list(self):
+        values = []
+        current = self.top
+
+        while current:
+            values.append(current.data)
+            current = current.next
+
+        return values
+
 
 
 @app.route('/')
@@ -126,6 +161,31 @@ def linked_list_clear():
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
+
+
+stack = Stack()
+
+@app.route('/works/stack')
+def stack_page():
+    return render_template(
+        'stack.html',
+        values=stack.to_list(),
+        top=stack.peek()
+    )
+
+@app.route('/works/stack/push', methods=['POST'])
+def stack_push():
+    data = request.form.get('data', '').strip()
+
+    if data:
+        stack.push(data)
+
+    return redirect(url_for('stack_page'))
+
+@app.route('/works/stack/pop', methods=['POST'])
+def stack_pop():
+    stack.pop()
+    return redirect(url_for('stack_page'))
 
 
 if __name__ == "__main__":
