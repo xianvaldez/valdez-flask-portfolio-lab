@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Stack Implementation</h1>
+    <p>A stack follows LIFO: Last In, First Out.</p>
+
+    <form action="{{ url_for('stack_push') }}" method="POST">
+        <input
+            type="text"
+            name="data"
+            placeholder="Enter an element"
+            required
+        >
+        <button type="submit">Push</button>
+    </form>
+
+    <form action="{{ url_for('stack_pop') }}" method="POST">
+        <button type="submit">Pop</button>
+    </form>
+
+    <h2>Stack (Top to Bottom)</h2>
+
+    {% if values %}
+        <ul>
+            {% for value in values %}
+                <li>
+                    {% if loop.first %}Top → {% endif %}
+                    {{ value }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <p>Top element: {{ top }}</p>
+    {% else %}
+        <p>Stack is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}
