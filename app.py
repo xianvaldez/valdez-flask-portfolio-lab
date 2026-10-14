@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
+import re
 
 app = Flask(__name__)
 
@@ -75,6 +76,66 @@ class Stack:
 
         return values
 
+
+def infix_to_postfix(expression):
+    tokens = re.findall(
+        r'\d+(?:\.\d+)?|[A-Za-z_]\w*|[()+\-*/^]',
+        expression
+    )
+
+    if ''.join(tokens).replace(' ', '') != expression.replace(' ', ''):
+        raise ValueError("Invalid characters in expression.")
+
+    precedence = {
+        '+': 1,
+        '-': 1,
+        '*': 2,
+        '/': 2,
+        '^': 3
+    }
+
+    output = []
+    operators = []
+
+    for token in tokens:
+        if re.fullmatch(r'\d+(?:\.\d+)?|[A-Za-z_]\w*', token):
+            output.append(token)
+
+        elif token == '(':
+            operators.append(token)
+
+        elif token == ')':
+            while operators and operators[-1] != '(':
+                output.append(operators.pop())
+
+            if not operators:
+                raise ValueError("Mismatched parentheses.")
+
+            operators.pop()
+
+        else:
+            while (
+                operators
+                and operators[-1] != '('
+                and (
+                    precedence[operators[-1]] > precedence[token]
+                    or (
+                        precedence[operators[-1]] == precedence[token]
+                        and token != '^'
+                    )
+                )
+            ):
+                output.append(operators.pop())
+
+            operators.append(token)
+
+    if '(' in operators:
+        raise ValueError("Mismatched parentheses.")
+
+    while operators:
+        output.append(operators.pop())
+
+    return ' '.join(output)
 
 
 @app.route('/')
@@ -186,6 +247,31 @@ def stack_push():
 def stack_pop():
     stack.pop()
     return redirect(url_for('stack_page'))
+
+
+@app.route('/works/infix-to-postfix', methods=['GET', 'POST'])
+def infix_postfix_page():
+    expression = ''
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        expression = request.form.get('expression', '').strip()
+
+        if expression:
+            try:
+                result = infix_to_postfix(expression)
+            except ValueError as e:
+                error = str(e)
+        else:
+            error = "Please enter an expression."
+
+    return render_template(
+        'infix_postfix.html',
+        expression=expression,
+        result=result,
+        error=error
+    )
 
 
 if __name__ == "__main__":
