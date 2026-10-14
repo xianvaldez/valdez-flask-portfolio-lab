@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Infix to Postfix - My Portfolio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Infix to Postfix Converter</h1>
+
+    <p>
+        Convert infix expressions into postfix notation
+        using a stack.
+    </p>
+
+    <div class="card">
+        <form method="POST">
+            <label for="expression">Enter an infix expression:</label>
+
+            <input
+                type="text"
+                id="expression"
+                name="expression"
+                value="{{ expression }}"
+                placeholder="Example: A+B*C"
+                required
+            >
+
+            <button class="btn" type="submit">Convert</button>
+        </form>
+
+        {% if result is not none %}
+        <div class="result">
+            <strong>Infix:</strong> {{ expression }}
+            <br>
+            <strong>Postfix:</strong> {{ result }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="result">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Examples</h2>
+        <p>A + B → A B +</p>
+        <p>A + B * C → A B C * +</p>
+        <p>(A + B) * C → A B + C *</p>
+        <p>A * B + C → A B * C +</p>
+    </div>
+
+    <a class="btn" href="{{ url_for('works') }}">
+        Back to Programming Works
+    </a>
+</div>
+{% endblock %}
