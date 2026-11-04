@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Queue and Deque - My Portfolio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Queue and Deque Implementation</h1>
+    <p>Both data structures are implemented using a Linked List.</p>
+
+    <div class="card">
+        <h2>Queue (FIFO)</h2>
+        <p>First In, First Out</p>
+
+        <form action="{{ url_for('queue_enqueue') }}" method="POST">
+            <input type="text" name="data"
+                   placeholder="Enter a value" required>
+            <button class="btn" type="submit">Enqueue</button>
+        </form>
+
+        <form action="{{ url_for('queue_dequeue') }}" method="POST">
+            <button class="btn" type="submit">Dequeue</button>
+        </form>
+
+        <h3>Queue Elements</h3>
+        <p>Front → Rear</p>
+
+        {% if queue_values %}
+            <p>{{ queue_values | join(' → ') }}</p>
+            <p><strong>Front:</strong> {{ queue_front }}</p>
+        {% else %}
+            <p>Queue is empty.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Deque (Double-Ended Queue)</h2>
+        <p>Elements can be added or removed from either end.</p>
+
+        <form action="{{ url_for('deque_add_front') }}" method="POST">
+            <input type="text" name="data"
+                   placeholder="Enter a value" required>
+            <button class="btn" type="submit">Add Front</button>
+        </form>
+
+        <form action="{{ url_for('deque_add_rear') }}" method="POST">
+            <input type="text" name="data"
+                   placeholder="Enter a value" required>
+            <button class="btn" type="submit">Add Rear</button>
+        </form>
+
+        <form action="{{ url_for('deque_remove_front') }}" method="POST">
+            <button class="btn" type="submit">Remove Front</button>
+        </form>
+
+        <form action="{{ url_for('deque_remove_rear') }}" method="POST">
+            <button class="btn" type="submit">Remove Rear</button>
+        </form>
+
+        <h3>Deque Elements</h3>
+        <p>Front → Rear</p>
+
+        {% if deque_values %}
+            <p>{{ deque_values | join(' ⇄ ') }}</p>
+        {% else %}
+            <p>Deque is empty.</p>
+        {% endif %}
+    </div>
+
+    <a class="btn" href="{{ url_for('works') }}">
+        Back to Programming Works
+    </a>
+</div>
+{% endblock %}
