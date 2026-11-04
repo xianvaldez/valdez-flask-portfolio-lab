@@ -1,332 +1,28 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
-import re
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+
+from linked_list import LinkedList
+from stack import Stack
+from queue_deque import Queue, Deque
+from infix_to_postfix import infix_to_postfix
+
+from sorting_algorithms import (
+    bubble_sort,
+    selection_sort,
+    insertion_sort,
+    merge_sort,
+    quick_sort
+)
+
+from area_calculators import area_of_circle, area_of_triangle
+from string_operations import convert_to_uppercase
+
 
 app = Flask(__name__)
 
-
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
-
-
-class LinkedList:
-    def __init__(self):
-        self.head = None
-        self.tail = None
-
-    def insert_at_beginning(self, data):
-        new_node = Node(data)
-        if self.head is None:
-            self.head = self.tail = new_node
-        else:
-            new_node.next = self.head
-            self.head = new_node
-
-    def insert_at_end(self, data):
-        new_node = Node(data)
-        if self.head is None:
-            self.head = self.tail = new_node
-        else:
-            self.tail.next = new_node
-            self.tail = new_node
-
-    def to_list(self):
-        values = []
-        current = self.head
-        while current:
-            values.append(current.data)
-            current = current.next
-        return values
-
-
 linked_list = LinkedList()
-
-
-class Stack:
-    def __init__(self):
-        self.top = None
-
-    def push(self, data):
-        new_node = Node(data)
-        new_node.next = self.top
-        self.top = new_node
-
-    def pop(self):
-        if self.top is None:
-            return None
-
-        popped_node = self.top
-        self.top = self.top.next
-        popped_node.next = None
-        return popped_node.data
-
-    def peek(self):
-        if self.top:
-            return self.top.data
-        return None
-
-    def to_list(self):
-        values = []
-        current = self.top
-
-        while current:
-            values.append(current.data)
-            current = current.next
-
-        return values
-
-
-class Queue:
-    def __init__(self):
-        self.front = None
-        self.rear = None
-
-    def enqueue(self, data):
-        new_node = Node(data)
-
-        if self.rear is None:
-            self.front = self.rear = new_node
-        else:
-            self.rear.next = new_node
-            self.rear = new_node
-
-    def dequeue(self):
-        if self.front is None:
-            return None
-
-        removed = self.front
-        self.front = self.front.next
-
-        if self.front is None:
-            self.rear = None
-
-        removed.next = None
-        return removed.data
-
-    def peek(self):
-        if self.front:
-            return self.front.data
-        return None
-
-    def to_list(self):
-        values = []
-        current = self.front
-
-        while current:
-            values.append(current.data)
-            current = current.next
-
-        return values
-
-
-class Deque:
-    def __init__(self):
-        self.front = None
-        self.rear = None
-
-    def add_front(self, data):
-        new_node = Node(data)
-
-        if self.front is None:
-            self.front = self.rear = new_node
-        else:
-            new_node.next = self.front
-            self.front = new_node
-
-    def add_rear(self, data):
-        new_node = Node(data)
-
-        if self.rear is None:
-            self.front = self.rear = new_node
-        else:
-            self.rear.next = new_node
-            self.rear = new_node
-
-    def remove_front(self):
-        if self.front is None:
-            return None
-
-        removed = self.front
-        self.front = self.front.next
-
-        if self.front is None:
-            self.rear = None
-
-        removed.next = None
-        return removed.data
-
-    def remove_rear(self):
-        if self.rear is None:
-            return None
-
-        removed = self.rear
-
-        if self.front == self.rear:
-            self.front = self.rear = None
-        else:
-            current = self.front
-
-            while current.next != self.rear:
-                current = current.next
-
-            self.rear = current
-            self.rear.next = None
-
-        return removed.data
-
-    def to_list(self):
-        values = []
-        current = self.front
-
-        while current:
-            values.append(current.data)
-            current = current.next
-
-        return values
-
-
-def bubble_sort(arr):
-    arr = arr.copy()
-    n = len(arr)
-
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
-
-    return arr
-
-
-def selection_sort(arr):
-    arr = arr.copy()
-    n = len(arr)
-
-    for i in range(n):
-        min_index = i
-
-        for j in range(i + 1, n):
-            if arr[j] < arr[min_index]:
-                min_index = j
-
-        arr[i], arr[min_index] = arr[min_index], arr[i]
-
-    return arr
-
-
-def insertion_sort(arr):
-    arr = arr.copy()
-
-    for i in range(1, len(arr)):
-        key = arr[i]
-        j = i - 1
-
-        while j >= 0 and arr[j] > key:
-            arr[j + 1] = arr[j]
-            j -= 1
-
-        arr[j + 1] = key
-
-    return arr
-
-
-def merge_sort(arr):
-    if len(arr) <= 1:
-        return arr
-
-    mid = len(arr) // 2
-
-    left = merge_sort(arr[:mid])
-    right = merge_sort(arr[mid:])
-
-    result = []
-    i = 0
-    j = 0
-
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i])
-            i += 1
-        else:
-            result.append(right[j])
-            j += 1
-
-    result.extend(left[i:])
-    result.extend(right[j:])
-
-    return result
-
-
-def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-
-    pivot = arr[-1]
-
-    left = [x for x in arr[:-1] if x <= pivot]
-    right = [x for x in arr[:-1] if x > pivot]
-
-    return quick_sort(left) + [pivot] + quick_sort(right)
-
-def infix_to_postfix(expression):
-    tokens = re.findall(
-        r'\d+(?:\.\d+)?|[A-Za-z_]\w*|[()+\-*/^]',
-        expression
-    )
-
-    if ''.join(tokens).replace(' ', '') != expression.replace(' ', ''):
-        raise ValueError("Invalid characters in expression.")
-
-    precedence = {
-        '+': 1,
-        '-': 1,
-        '*': 2,
-        '/': 2,
-        '^': 3
-    }
-
-    output = []
-    operators = []
-
-    for token in tokens:
-        if re.fullmatch(r'\d+(?:\.\d+)?|[A-Za-z_]\w*', token):
-            output.append(token)
-
-        elif token == '(':
-            operators.append(token)
-
-        elif token == ')':
-            while operators and operators[-1] != '(':
-                output.append(operators.pop())
-
-            if not operators:
-                raise ValueError("Mismatched parentheses.")
-
-            operators.pop()
-
-        else:
-            while (
-                operators
-                and operators[-1] != '('
-                and (
-                    precedence[operators[-1]] > precedence[token]
-                    or (
-                        precedence[operators[-1]] == precedence[token]
-                        and token != '^'
-                    )
-                )
-            ):
-                output.append(operators.pop())
-
-            operators.append(token)
-
-    if '(' in operators:
-        raise ValueError("Mismatched parentheses.")
-
-    while operators:
-        output.append(operators.pop())
-
-    return ' '.join(output)
+stack = Stack()
+queue = Queue()
+deque_list = Deque()
 
 
 @app.route('/')
@@ -342,46 +38,56 @@ def profile():
 @app.route('/works', methods=['GET', 'POST'])
 def works():
     result = None
+
     if request.method == 'POST':
         input_string = request.form.get('inputString', '')
-        result = input_string.upper()
+        result = convert_to_uppercase(input_string)
+
     return render_template('works.html', result=result)
 
 
 @app.route('/works/area/circle', methods=['GET', 'POST'])
 def acircle():
     result = None
+
     if request.method == 'POST':
         try:
-            radius = float(request.form.get('radius', 0))
+            radius = float(request.form.get('radius', ''))
             if radius < 0:
-                result = "Radius cannot be negative."
-            else:
-                result = round(3.14159 * radius * radius, 2)
+                raise ValueError
+            result = area_of_circle(radius)
         except ValueError:
-            result = "Please enter a valid number."
+            result = "Invalid radius."
+
     return render_template('circle.html', result=result)
 
 
 @app.route('/works/area/triangle', methods=['GET', 'POST'])
 def atriangle():
     result = None
+
     if request.method == 'POST':
         try:
-            base = float(request.form.get('base', 0))
-            height = float(request.form.get('height', 0))
+            base = float(request.form.get('base', ''))
+            height = float(request.form.get('height', ''))
+
             if base < 0 or height < 0:
-                result = "Base and height cannot be negative."
-            else:
-                result = round(0.5 * base * height, 2)
+                raise ValueError
+
+            result = area_of_triangle(base, height)
+
         except ValueError:
-            result = "Please enter valid numbers."
+            result = "Invalid base or height."
+
     return render_template('triangle.html', result=result)
 
 
 @app.route('/works/linked-list')
 def linked_list_page():
-    return render_template('linked_list.html', values=linked_list.to_list())
+    return render_template(
+        'linked_list.html',
+        values=linked_list.to_list()
+    )
 
 
 @app.route('/works/linked-list/insert', methods=['POST'])
@@ -390,32 +96,36 @@ def linked_list_insert():
     position = request.form.get('position', 'end')
 
     if not data:
-        return jsonify({"success": False, "message": "Please enter a value."})
+        return jsonify({
+            'success': False,
+            'message': 'Please enter a node value.'
+        })
 
     if position == 'beginning':
         linked_list.insert_at_beginning(data)
-    else:
+    elif position == 'end':
         linked_list.insert_at_end(data)
+    else:
+        return jsonify({
+            'success': False,
+            'message': 'Invalid insertion position.'
+        })
 
     return jsonify({
-        "success": True,
-        "values": linked_list.to_list()
+        'success': True,
+        'values': linked_list.to_list()
     })
 
 
 @app.route('/works/linked-list/clear', methods=['POST'])
 def linked_list_clear():
-    linked_list.head = None
-    linked_list.tail = None
-    return jsonify({"success": True, "values": []})
+    linked_list.clear()
 
+    return jsonify({
+        'success': True,
+        'values': linked_list.to_list()
+    })
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
-
-stack = Stack()
 
 @app.route('/works/stack')
 def stack_page():
@@ -425,6 +135,7 @@ def stack_page():
         top=stack.peek()
     )
 
+
 @app.route('/works/stack/push', methods=['POST'])
 def stack_push():
     data = request.form.get('data', '').strip()
@@ -433,6 +144,7 @@ def stack_push():
         stack.push(data)
 
     return redirect(url_for('stack_page'))
+
 
 @app.route('/works/stack/pop', methods=['POST'])
 def stack_pop():
@@ -465,17 +177,14 @@ def infix_postfix_page():
     )
 
 
-queue = Queue()
-deque = Deque()
-
-
+# Queue and Deque
 @app.route('/works/queue-deque')
 def queue_deque_page():
     return render_template(
         'queue_deque.html',
         queue_values=queue.to_list(),
         queue_front=queue.peek(),
-        deque_values=deque.to_list()
+        deque_values=deque_list.to_list()
     )
 
 
@@ -500,7 +209,7 @@ def deque_add_front():
     data = request.form.get('data', '').strip()
 
     if data:
-        deque.add_front(data)
+        deque_list.add_front(data)
 
     return redirect(url_for('queue_deque_page'))
 
@@ -510,20 +219,20 @@ def deque_add_rear():
     data = request.form.get('data', '').strip()
 
     if data:
-        deque.add_rear(data)
+        deque_list.add_rear(data)
 
     return redirect(url_for('queue_deque_page'))
 
 
 @app.route('/works/deque/remove-front', methods=['POST'])
 def deque_remove_front():
-    deque.remove_front()
+    deque_list.remove_front()
     return redirect(url_for('queue_deque_page'))
 
 
 @app.route('/works/deque/remove-rear', methods=['POST'])
 def deque_remove_rear():
-    deque.remove_rear()
+    deque_list.remove_rear()
     return redirect(url_for('queue_deque_page'))
 
 
@@ -567,5 +276,10 @@ def sorting_page():
     )
 
 
-if __name__ == "__main__":
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+
+if __name__ == '__main__':
     app.run(debug=True)
