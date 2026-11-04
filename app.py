@@ -77,6 +77,115 @@ class Stack:
         return values
 
 
+class Queue:
+    def __init__(self):
+        self.front = None
+        self.rear = None
+
+    def enqueue(self, data):
+        new_node = Node(data)
+
+        if self.rear is None:
+            self.front = self.rear = new_node
+        else:
+            self.rear.next = new_node
+            self.rear = new_node
+
+    def dequeue(self):
+        if self.front is None:
+            return None
+
+        removed = self.front
+        self.front = self.front.next
+
+        if self.front is None:
+            self.rear = None
+
+        removed.next = None
+        return removed.data
+
+    def peek(self):
+        if self.front:
+            return self.front.data
+        return None
+
+    def to_list(self):
+        values = []
+        current = self.front
+
+        while current:
+            values.append(current.data)
+            current = current.next
+
+        return values
+
+
+class Deque:
+    def __init__(self):
+        self.front = None
+        self.rear = None
+
+    def add_front(self, data):
+        new_node = Node(data)
+
+        if self.front is None:
+            self.front = self.rear = new_node
+        else:
+            new_node.next = self.front
+            self.front = new_node
+
+    def add_rear(self, data):
+        new_node = Node(data)
+
+        if self.rear is None:
+            self.front = self.rear = new_node
+        else:
+            self.rear.next = new_node
+            self.rear = new_node
+
+    def remove_front(self):
+        if self.front is None:
+            return None
+
+        removed = self.front
+        self.front = self.front.next
+
+        if self.front is None:
+            self.rear = None
+
+        removed.next = None
+        return removed.data
+
+    def remove_rear(self):
+        if self.rear is None:
+            return None
+
+        removed = self.rear
+
+        if self.front == self.rear:
+            self.front = self.rear = None
+        else:
+            current = self.front
+
+            while current.next != self.rear:
+                current = current.next
+
+            self.rear = current
+            self.rear.next = None
+
+        return removed.data
+
+    def to_list(self):
+        values = []
+        current = self.front
+
+        while current:
+            values.append(current.data)
+            current = current.next
+
+        return values
+
+
 def infix_to_postfix(expression):
     tokens = re.findall(
         r'\d+(?:\.\d+)?|[A-Za-z_]\w*|[()+\-*/^]',
@@ -272,6 +381,68 @@ def infix_postfix_page():
         result=result,
         error=error
     )
+
+
+queue = Queue()
+deque = Deque()
+
+
+@app.route('/works/queue-deque')
+def queue_deque_page():
+    return render_template(
+        'queue_deque.html',
+        queue_values=queue.to_list(),
+        queue_front=queue.peek(),
+        deque_values=deque.to_list()
+    )
+
+
+@app.route('/works/queue/enqueue', methods=['POST'])
+def queue_enqueue():
+    data = request.form.get('data', '').strip()
+
+    if data:
+        queue.enqueue(data)
+
+    return redirect(url_for('queue_deque_page'))
+
+
+@app.route('/works/queue/dequeue', methods=['POST'])
+def queue_dequeue():
+    queue.dequeue()
+    return redirect(url_for('queue_deque_page'))
+
+
+@app.route('/works/deque/add-front', methods=['POST'])
+def deque_add_front():
+    data = request.form.get('data', '').strip()
+
+    if data:
+        deque.add_front(data)
+
+    return redirect(url_for('queue_deque_page'))
+
+
+@app.route('/works/deque/add-rear', methods=['POST'])
+def deque_add_rear():
+    data = request.form.get('data', '').strip()
+
+    if data:
+        deque.add_rear(data)
+
+    return redirect(url_for('queue_deque_page'))
+
+
+@app.route('/works/deque/remove-front', methods=['POST'])
+def deque_remove_front():
+    deque.remove_front()
+    return redirect(url_for('queue_deque_page'))
+
+
+@app.route('/works/deque/remove-rear', methods=['POST'])
+def deque_remove_rear():
+    deque.remove_rear()
+    return redirect(url_for('queue_deque_page'))
 
 
 if __name__ == "__main__":
