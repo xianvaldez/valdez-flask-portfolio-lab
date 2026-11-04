@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Sorting Algorithms - My Portfolio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Sorting Algorithms</h1>
+    <p>Explore five sorting algorithms using numerical values.</p>
+
+    <div class="card">
+        <h2>Sort Numbers</h2>
+
+        <form method="POST">
+            <label>Enter numbers separated by commas:</label>
+            <input
+                type="text"
+                name="numbers"
+                placeholder="Example: 64, 25, 12, 22, 11"
+                required
+            >
+
+            <label>Select Sorting Algorithm:</label>
+            <select name="algorithm" required>
+                <option value="">Choose an algorithm</option>
+                <option value="bubble"
+                    {% if selected_algorithm == 'bubble' %}selected{% endif %}>
+                    Bubble Sort
+                </option>
+                <option value="selection"
+                    {% if selected_algorithm == 'selection' %}selected{% endif %}>
+                    Selection Sort
+                </option>
+                <option value="insertion"
+                    {% if selected_algorithm == 'insertion' %}selected{% endif %}>
+                    Insertion Sort
+                </option>
+                <option value="merge"
+                    {% if selected_algorithm == 'merge' %}selected{% endif %}>
+                    Merge Sort
+                </option>
+                <option value="quick"
+                    {% if selected_algorithm == 'quick' %}selected{% endif %}>
+                    Quick Sort
+                </option>
+            </select>
+
+            <button class="btn" type="submit">Sort Numbers</button>
+        </form>
+
+        {% if error %}
+            <div class="result">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+
+        {% if result is not none %}
+            <div class="result">
+                <h3>Original Numbers</h3>
+                <p>{{ original | join(', ') }}</p>
+
+                <h3>Sorted Numbers</h3>
+                <p>{{ result | join(', ') }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Available Algorithms</h2>
+
+        <h3>1. Bubble Sort</h3>
+        <p>Compares adjacent elements and swaps them if they are in the wrong order.</p>
+
+        <h3>2. Selection Sort</h3>
+        <p>Finds the smallest element and places it in its correct position.</p>
+
+        <h3>3. Insertion Sort</h3>
+        <p>Builds a sorted list by inserting each element into its proper position.</p>
+
+        <h3>4. Merge Sort</h3>
+        <p>Divides the list into smaller parts, sorts them, and merges them together.</p>
+
+        <h3>5. Quick Sort</h3>
+        <p>Uses a pivot to divide elements into smaller and larger groups, then sorts them recursively.</p>
+    </div>
+
+    <a class="btn" href="{{ url_for('works') }}">
+        Back to Programming Works
+    </a>
+</div>
+{% endblock %}
