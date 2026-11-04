@@ -3,7 +3,7 @@ import re
 
 app = Flask(__name__)
 
-# Linked List
+
 class Node:
     def __init__(self, data):
         self.data = data
@@ -185,6 +185,88 @@ class Deque:
 
         return values
 
+
+def bubble_sort(arr):
+    arr = arr.copy()
+    n = len(arr)
+
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
+    return arr
+
+
+def selection_sort(arr):
+    arr = arr.copy()
+    n = len(arr)
+
+    for i in range(n):
+        min_index = i
+
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+
+        arr[i], arr[min_index] = arr[min_index], arr[i]
+
+    return arr
+
+
+def insertion_sort(arr):
+    arr = arr.copy()
+
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+
+        arr[j + 1] = key
+
+    return arr
+
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+
+    result = []
+    i = 0
+    j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+
+
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    pivot = arr[-1]
+
+    left = [x for x in arr[:-1] if x <= pivot]
+    right = [x for x in arr[:-1] if x > pivot]
+
+    return quick_sort(left) + [pivot] + quick_sort(right)
 
 def infix_to_postfix(expression):
     tokens = re.findall(
@@ -443,6 +525,46 @@ def deque_remove_front():
 def deque_remove_rear():
     deque.remove_rear()
     return redirect(url_for('queue_deque_page'))
+
+
+@app.route('/works/sorting', methods=['GET', 'POST'])
+def sorting_page():
+    result = None
+    original = None
+    selected_algorithm = ''
+    error = None
+
+    algorithms = {
+        'bubble': bubble_sort,
+        'selection': selection_sort,
+        'insertion': insertion_sort,
+        'merge': merge_sort,
+        'quick': quick_sort
+    }
+
+    if request.method == 'POST':
+        numbers = request.form.get('numbers', '').strip()
+        selected_algorithm = request.form.get('algorithm', '')
+
+        try:
+            original = [int(x.strip()) for x in numbers.split(',')]
+
+            if selected_algorithm not in algorithms:
+                error = "Please select a sorting algorithm."
+                original = None
+            else:
+                result = algorithms[selected_algorithm](original)
+
+        except ValueError:
+            error = "Please enter valid numbers separated by commas."
+
+    return render_template(
+        'sorting.html',
+        result=result,
+        original=original,
+        selected_algorithm=selected_algorithm,
+        error=error
+    )
 
 
 if __name__ == "__main__":
